@@ -17,9 +17,11 @@
     </bean>
 
     <bean name="aws.creds" class="com.amazonaws.auth.BasicAWSCredentials">
-        <constructor-arg value="{{ AWS_ACCESS_KEY }}"/>
-        <constructor-arg value="{{ AWS_SECRET_KEY }}"/>
+        <constructor-arg value="#{systemEnvironment['AWS_ACCESS_KEY']}"/>
+        <constructor-arg value="#{systemEnvironment['AWS_SECRET_KEY']}"/>
     </bean>
+
+
 
     <bean id="ignite.cfg" class="org.apache.ignite.configuration.IgniteConfiguration">
 
@@ -96,15 +98,28 @@
         <property name="discoverySpi">
             <bean name="tcpDiscoverySpi" class="org.apache.ignite.spi.discovery.tcp.TcpDiscoverySpi">
                 <property name="ipFinder">
-                    <bean class="org.apache.ignite.spi.discovery.tcp.ipfinder.s3.TcpDiscoveryS3IpFinder">
-                        <property name="awsCredentialsProvider" ref="aws.creds"/>
-                        <property name="clientConfiguration">
-                            <bean class="com.amazonaws.ClientConfiguration"/>
+                    <bean class="org.apache.ignite.spi.discovery.tcp.ipfinder.elb.TcpDiscoveryElbIpFinder">
+                        <property name="credentialsProvider">
+                            <bean class="com.amazonaws.auth.AWSStaticCredentialsProvider">
+                                <constructor-arg ref="aws.creds"/>
+                            </bean>
                         </property>
-                        <property name="bucketName">
-                            <value>aaksenovtestcluster2</value>
-                        </property>
+                        <property name="region" value="us-east-1"/>
+                        <property name="loadBalancerName" value="aaksenovcluster2"/>
                     </bean>
+
+
+
+
+                    <!--<bean class="org.apache.ignite.spi.discovery.tcp.ipfinder.s3.TcpDiscoveryS3IpFinder">-->
+                    <!--<property name="awsCredentials" ref="aws.creds"/>-->
+                    <!--<property name="clientConfiguration">-->
+                    <!--<bean class="com.amazonaws.ClientConfiguration"/>-->
+                    <!--</property>-->
+                    <!--<property name="bucketName">-->
+                    <!--<value>aaksenovtestcluster1</value>-->
+                    <!--</property>-->
+                    <!--</bean>-->
                 </property>
             </bean>
         </property>
