@@ -68,17 +68,19 @@
         <property name="networkTimeout" value="45000"/>
 
         <!--  default is 3 -->
-        <property name="networkSendRetryCount" value="5"/>
+        <property name="networkSendRetryCount" value="5"/>               
+      
+        <bean name="baseCacheConfig" class="org.apache.ignite.configuration.CacheConfiguration" abstract="true">
+           <property name="name" value="default"/>
+           <property name="atomicityMode" value="ATOMIC"/>
+           <property name="backups" value="1"/>
+        </bean>
 
 
         <property name="cacheConfiguration">
             <list>
                 <!-- Partitioned cache example configuration (Atomic mode). -->
-                <bean name="baseCacheConfig" class="org.apache.ignite.configuration.CacheConfiguration" abstract="true">
-                    <property name="name" value="default"/>
-                    <property name="atomicityMode" value="ATOMIC"/>
-                    <property name="backups" value="1"/>
-                </bean>
+
 
 
                 <bean name="baseReplicatedCacheConfig" parent="baseCacheConfig" abstract="true">
