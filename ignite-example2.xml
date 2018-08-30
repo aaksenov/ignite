@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+  Licensed to the Apache Software Foundation (ASF) under one or more
+  contributor license agreements.  See the NOTICE file distributed with
+  this work for additional information regarding copyright ownership.
+  The ASF licenses this file to You under the Apache License, Version 2.0
+  (the "License"); you may not use this file except in compliance with
+  the License.  You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+
+<!--
+    Ignite Spring configuration file to startup Ignite cache.
+
+    This file demonstrates how to configure cache using Spring. Provided cache
+    will be created on node startup.
+
+    Use this configuration file when running HTTP REST examples (see 'examples/rest' folder).
+
+    When starting a standalone node, you need to execute the following command:
+    {IGNITE_HOME}/bin/ignite.{bat|sh} examples/config/example-cache.xml
+
+    When starting Ignite from Java IDE, pass path to this file to Ignition:
+    Ignition.start("examples/config/example-cache.xml");
+-->
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="
+        http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans.xsd">
+    <bean id="ignite.cfg" class="org.apache.ignite.configuration.IgniteConfiguration">
+
+        <property name="peerClassLoadingEnabled" value="false"/>
+
+        <property name="metricsLogFrequency" value="0"/>
+
+        <!--
+             configure the maximum number of allowed outgoing messages for client nodes
+             If the size of outbound queue exceeds this value, such a client node will
+             be disconnected from the cluster preventing global slowdown.
+        -->
+        <property name="communicationSpi">
+            <bean class="org.apache.ignite.spi.communication.tcp.TcpCommunicationSpi">
+                <property name="slowClientQueueLimit" value="1023"/>
+
+                <property name="messageQueueLimit" value="1024"/>
+
+                <!--  default is 2000  -->
+                <property name="socketWriteTimeout" value="45000"/>
+
+                <!--  default is 5000 -->
+                <property name="connectTimeout" value="45000"/>
+
+                <!-- default is 30000 -->
+                <property name="idleConnectionTimeout" value="45000"/>
+            </bean>
+        </property>
+
+        <!--  default is 5000 -->
+        <property name="networkTimeout" value="45000"/>
+
+        <!--  default is 3 -->
+        <property name="networkSendRetryCount" value="5"/>
+
+
+        <property name="cacheConfiguration">
+            <list>
+                <!-- Partitioned cache example configuration (Atomic mode). -->
+                <bean name="baseCacheConfig" class="org.apache.ignite.configuration.CacheConfiguration" abstract="true">
+                    <property name="name" value="default"/>
+                    <property name="atomicityMode" value="ATOMIC"/>
+                    <property name="backups" value="1"/>
+                </bean>
+
+
+                <bean name="baseReplicatedCacheConfig" parent="baseCacheConfig" abstract="true">
+                    <property name="cacheMode" value="REPLICATED"/>
+                </bean>
+
+                <bean name="lockCacheConfig" parent="baseReplicatedCacheConfig">
+                    <property name="name" value="lock"/>
+                    <property name="atomicityMode" value="TRANSACTIONAL"/>
+                </bean>
+
+                <bean name="attributeCacheConfig" parent="baseCacheConfig">
+                    <property name="name" value="attribute"/>
+                    <property name="backups" value="7"/>
+                </bean>
+
+                <bean name="expirableCacheConfig" parent="baseCacheConfig">
+                    <property name="backups" value="7"/>
+                    <property name="name" value="expirableCache"/>
+                    <property name="eagerTtl" value="true"/>
+                    <property name="expiryPolicyFactory">
+                        <bean class="javax.cache.expiry.AccessedExpiryPolicy" factory-method="factoryOf">
+                            <constructor-arg>
+                                <bean class="javax.cache.expiry.Duration">
+                                    <constructor-arg value="MINUTES"/>
+                                    <constructor-arg value="60"/>
+                                </bean>
+                            </constructor-arg>
+                        </bean>
+                    </property>
+                </bean>
+
+
+            </list>
+        </property>
+
+
+        <!-- Explicitly configure TCP discovery SPI to provide list of initial nodes. -->
+        <property name="discoverySpi">
+            <bean name="tcpDiscoverySpi" class="org.apache.ignite.spi.discovery.tcp.TcpDiscoverySpi">
+                <property name="ipFinder">
+                    <bean class="org.apache.ignite.spi.discovery.tcp.ipfinder.s3.TcpDiscoveryS3IpFinder">
+                        <property name="awsCredentialsProvider" ref="aws.creds"/>
+                        <property name="clientConfiguration">
+                            <bean class="com.amazonaws.ClientConfiguration"/>
+                        </property>
+                        <property name="bucketName">
+                            <value>aaksenovtestcluster2</value>
+                        </property>
+                    </bean>
+                </property>
+            </bean>
+        </property>
+    </bean>
+</beans>
