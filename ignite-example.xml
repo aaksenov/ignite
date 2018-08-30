@@ -16,7 +16,10 @@
         <property name="cacheMode" value="REPLICATED"/>
     </bean>
 
-    <bean name="aws.creds" class="com.amazonaws.auth.InstanceProfileCredentialsProvider"/>
+    <bean name="aws.creds" class="com.amazonaws.auth.BasicAWSCredentials">
+        <constructor-arg value="{{ AWS_ACCESS_KEY }}"/>
+        <constructor-arg value="{{ AWS_SECRET_KEY }}"/>
+    </bean>
     
     <bean id="ignite.cfg" class="org.apache.ignite.configuration.IgniteConfiguration">
 
