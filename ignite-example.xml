@@ -36,6 +36,13 @@
        xsi:schemaLocation="
         http://www.springframework.org/schema/beans
         http://www.springframework.org/schema/beans/spring-beans.xsd">
+  
+    <bean name="baseCacheConfig" class="org.apache.ignite.configuration.CacheConfiguration" abstract="true">
+        <property name="name" value="default"/>
+        <property name="atomicityMode" value="ATOMIC"/>
+        <property name="backups" value="1"/>
+    </bean>
+  
     <bean id="ignite.cfg" class="org.apache.ignite.configuration.IgniteConfiguration">
 
         <property name="peerClassLoadingEnabled" value="false"/>
@@ -69,12 +76,7 @@
 
         <!--  default is 3 -->
         <property name="networkSendRetryCount" value="5"/>               
-      
-        <bean name="baseCacheConfig" class="org.apache.ignite.configuration.CacheConfiguration" abstract="true">
-           <property name="name" value="default"/>
-           <property name="atomicityMode" value="ATOMIC"/>
-           <property name="backups" value="1"/>
-        </bean>
+     
 
 
         <property name="cacheConfiguration">
