@@ -28,6 +28,28 @@
 
         <property name="metricsLogFrequency" value="0"/>
 
+        <!--
+             configure the maximum number of allowed outgoing messages for client nodes
+             If the size of outbound queue exceeds this value, such a client node will
+             be disconnected from the cluster preventing global slowdown.
+        -->
+        <property name="communicationSpi">
+            <bean class="org.apache.ignite.spi.communication.tcp.TcpCommunicationSpi">
+                <property name="slowClientQueueLimit" value="1023"/>
+
+                <property name="messageQueueLimit" value="1024"/>
+
+                <!--  default is 2000  -->
+                <property name="socketWriteTimeout" value="45000"/>
+
+                <!--  default is 5000 -->
+                <property name="connectTimeout" value="45000"/>
+
+                <!-- default is 30000 -->
+                <property name="idleConnectionTimeout" value="45000"/>
+            </bean>
+        </property>
+
         <!--  default is 5000 -->
         <property name="networkTimeout" value="45000"/>
 
@@ -85,6 +107,18 @@
                         <property name="loadBalancerName" value="aaksenovcluster1"/>
                     </bean>
 
+
+
+
+                    <!--<bean class="org.apache.ignite.spi.discovery.tcp.ipfinder.s3.TcpDiscoveryS3IpFinder">-->
+                        <!--<property name="awsCredentials" ref="aws.creds"/>-->
+                        <!--<property name="clientConfiguration">-->
+                            <!--<bean class="com.amazonaws.ClientConfiguration"/>-->
+                        <!--</property>-->
+                        <!--<property name="bucketName">-->
+                            <!--<value>aaksenovtestcluster1</value>-->
+                        <!--</property>-->
+                    <!--</bean>-->
                 </property>
             </bean>
         </property>
